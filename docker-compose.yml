@@ -1,0 +1,21 @@
+services:
+  crafted_app:
+    container_name: crafted_app
+    restart: always
+    build: .
+    ports:
+      - "5000:3000"
+    depends_on:
+      - crafted_db
+    volumes:
+      - .:/usr/src/app
+  crafted_db:
+    container_name: crafted_db
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - crafted_mongo_data:/data/db
+
+volumes:
+  crafted_mongo_data:
