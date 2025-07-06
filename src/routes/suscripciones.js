@@ -2,29 +2,10 @@ const express = require("express");
 const router = express.Router();
 const Suscripcion = require("../models/suscripcion");
 
-// Middleware de autenticación (reutilizar)
-const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (!token) {
-    return res.status(401).json({ error: "No hay token, acceso denegado" });
-  }
-
-  try {
-    const jwt = require("jsonwebtoken");
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
-    req.usuario = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: "Token inválido" });
-  }
-};
-
-// Obtener suscripción activa del usuario
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/:usuarioId", async (req, res) => {
   try {
     const suscripcion = await Suscripcion.findOne({
-      usuario: req.usuario.id,
+      usuario: req.params.usuarioId,
       status: { $in: ['Activa', 'Pausada'] }
     }).populate('usuario', 'nombre apellido email');
 
@@ -34,14 +15,12 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-// Crear nueva suscripción
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const { tipo } = req.body;
+    const { tipo, usuarioId } = req.body;
 
-    // Verificar si ya tiene suscripción activa
     const suscripcionExistente = await Suscripcion.findOne({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       status: { $in: ['Activa', 'Pausada'] }
     });
 
@@ -49,7 +28,6 @@ router.post("/", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: "Ya tienes una suscripción activa" });
     }
 
-    // Calcular precio y fecha fin
     let precio, fechaFin;
     const fechaInicio = new Date();
 
@@ -71,7 +49,7 @@ router.post("/", authMiddleware, async (req, res) => {
     }
 
     const suscripcion = new Suscripcion({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       tipo,
       fechaInicio,
       fechaFin,
@@ -86,13 +64,12 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-// Actualizar estado de suscripción
-router.put("/:id/estado", authMiddleware, async (req, res) => {
+router.put("/:id/estado", async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, usuarioId } = req.body;
 
     const suscripcion = await Suscripcion.findOneAndUpdate(
-      { _id: req.params.id, usuario: req.usuario.id },
+      { _id: req.params.id, usuario: usuarioId },
       { status },
       { new: true }
     );

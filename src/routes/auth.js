@@ -1,14 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const Usuario = require("../models/usuario");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 router.post("/registro", async (req, res) => {
   try {
     const { nombre, apellido, email, password, experiencia, estilos } = req.body;
 
-    // Verificar si el usuario ya existe
     const usuarioExistente = await Usuario.findOne({ email });
     if (usuarioExistente) {
       return res.status(400).json({ error: "El usuario ya existe" });
@@ -27,16 +25,8 @@ router.post("/registro", async (req, res) => {
 
     await usuario.save();
 
-    // Generar token JWT
-    const token = jwt.sign(
-      { id: usuario._id, email: usuario.email },
-      process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "7d" }
-    );
-
     res.status(201).json({
       message: "Usuario registrado exitosamente",
-      token,
       usuario: {
         id: usuario._id,
         nombre: usuario.nombre,
@@ -65,15 +55,8 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Credenciales inválidas" });
     }
 
-    const token = jwt.sign(
-      { id: usuario._id, email: usuario.email },
-      process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "7d" }
-    );
-
     res.json({
       message: "Login exitoso",
-      token,
       usuario: {
         id: usuario._id,
         nombre: usuario.nombre,
@@ -88,40 +71,31 @@ router.post("/login", async (req, res) => {
   }
 });
 
-const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (!token) {
-    return res.status(401).json({ error: "No hay token, acceso denegado" });
-  }
-
+router.get("/perfil/:id", async (req, res) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
-    req.usuario = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: "Token inválido" });
-  }
-};
-
-router.get("/perfil", authMiddleware, async (req, res) => {
-  try {
-    const usuario = await Usuario.findById(req.usuario.id).select("-password");
+    const usuario = await Usuario.findById(req.params.id).select("-password");
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
     res.json(usuario);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.put("/perfil", authMiddleware, async (req, res) => {
+router.put("/perfil/:id", async (req, res) => {
   try {
     const { nombre, apellido, email, experiencia, estilos } = req.body;
 
     const usuario = await Usuario.findByIdAndUpdate(
-      req.usuario.id,
+      req.params.id,
       { nombre, apellido, email, experiencia, estilos },
       { new: true }
     ).select("-password");
+
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
 
     res.json(usuario);
   } catch (err) {
