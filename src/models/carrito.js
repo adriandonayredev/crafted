@@ -11,7 +11,7 @@ const carritoSchema = new mongoose.Schema({
   fechaModificacion: { type: Date, default: Date.now }
 });
 
-// Actualizar fecha de modificación en cada cambio
+
 carritoSchema.pre('save', function(next) {
   this.fechaModificacion = new Date();
   next();

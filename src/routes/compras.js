@@ -3,37 +3,19 @@ const router = express.Router();
 const Compra = require("../models/compra");
 const Carrito = require("../models/carrito");
 const Producto = require("../models/producto");
-const jwt = require("jsonwebtoken");
-
-// Middleware de autenticación
-const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (!token) {
-    return res.status(401).json({ error: "No hay token, acceso denegado" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
-    req.usuario = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: "Token inválido" });
-  }
-};
 
 // Procesar compra desde el carrito
-router.post("/procesar", authMiddleware, async (req, res) => {
+router.post("/procesar", async (req, res) => {
   try {
-    const { metodoPago } = req.body;
+    const { usuarioId, metodoPago } = req.body;
 
-    if (!metodoPago) {
-      return res.status(400).json({ error: "Método de pago requerido" });
+    if (!usuarioId || !metodoPago) {
+      return res.status(400).json({ error: "Usuario y método de pago requeridos" });
     }
 
     // Obtener carrito activo
     const carrito = await Carrito.findOne({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       status: 'Activo'
     }).populate('productos.producto');
 
@@ -57,7 +39,7 @@ router.post("/procesar", authMiddleware, async (req, res) => {
 
     // Crear compra
     const compra = new Compra({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       productos: carrito.productos.map(item => ({
         producto: item.producto._id,
         cantidad: item.cantidad,
@@ -94,9 +76,11 @@ router.post("/procesar", authMiddleware, async (req, res) => {
 });
 
 // Obtener historial de compras del usuario
-router.get("/historial", authMiddleware, async (req, res) => {
+router.get("/historial/:usuarioId", async (req, res) => {
   try {
-    const compras = await Compra.find({ usuario: req.usuario.id })
+    const { usuarioId } = req.params;
+
+    const compras = await Compra.find({ usuario: usuarioId })
       .populate('productos.producto')
       .sort({ fecha: -1 });
 
@@ -107,11 +91,13 @@ router.get("/historial", authMiddleware, async (req, res) => {
 });
 
 // Obtener detalles de una compra específica
-router.get("/:id", authMiddleware, async (req, res) => {
+router.get("/:id/:usuarioId", async (req, res) => {
   try {
+    const { id, usuarioId } = req.params;
+
     const compra = await Compra.findOne({
-      _id: req.params.id,
-      usuario: req.usuario.id
+      _id: id,
+      usuario: usuarioId
     }).populate('productos.producto usuario');
 
     if (!compra) {
@@ -125,11 +111,14 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 // Cancelar compra (solo si está en estado pendiente)
-router.put("/:id/cancelar", authMiddleware, async (req, res) => {
+router.put("/:id/cancelar", async (req, res) => {
   try {
+    const { id } = req.params;
+    const { usuarioId } = req.body;
+
     const compra = await Compra.findOne({
-      _id: req.params.id,
-      usuario: req.usuario.id
+      _id: id,
+      usuario: usuarioId
     });
 
     if (!compra) {
@@ -163,10 +152,12 @@ router.put("/:id/cancelar", authMiddleware, async (req, res) => {
 });
 
 // Obtener estadísticas de compras del usuario
-router.get("/estadisticas/resumen", authMiddleware, async (req, res) => {
+router.get("/estadisticas/:usuarioId", async (req, res) => {
   try {
+    const { usuarioId } = req.params;
+
     const estadisticas = await Compra.aggregate([
-      { $match: { usuario: req.usuario.id } },
+      { $match: { usuario: usuarioId } },
       {
         $group: {
           _id: null,

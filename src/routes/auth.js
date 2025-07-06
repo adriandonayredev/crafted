@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const Usuario = require("../models/usuario");
-const bcrypt = require("bcryptjs");
 
 router.post("/registro", async (req, res) => {
   try {
@@ -12,13 +11,11 @@ router.post("/registro", async (req, res) => {
       return res.status(400).json({ error: "El usuario ya existe" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const usuario = new Usuario({
       nombre,
       apellido,
       email,
-      password: hashedPassword,
+      password,
       experiencia,
       estilos
     });
@@ -50,8 +47,8 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Credenciales inválidas" });
     }
 
-    const isMatch = await bcrypt.compare(password, usuario.password);
-    if (!isMatch) {
+    // Comparación directa de passwords sin hash
+    if (usuario.password !== password) {
       return res.status(400).json({ error: "Credenciales inválidas" });
     }
 

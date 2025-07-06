@@ -2,37 +2,21 @@ const express = require("express");
 const router = express.Router();
 const Carrito = require("../models/carrito");
 const Producto = require("../models/producto");
-const jwt = require("jsonwebtoken");
-
-// Middleware de autenticación
-const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (!token) {
-    return res.status(401).json({ error: "No hay token, acceso denegado" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
-    req.usuario = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: "Token inválido" });
-  }
-};
 
 // Obtener carrito activo del usuario
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/:usuarioId", async (req, res) => {
   try {
+    const { usuarioId } = req.params;
+
     let carrito = await Carrito.findOne({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       status: 'Activo'
     }).populate('productos.producto');
 
     // Si no existe carrito activo, crear uno nuevo
     if (!carrito) {
       carrito = new Carrito({
-        usuario: req.usuario.id,
+        usuario: usuarioId,
         productos: []
       });
       await carrito.save();
@@ -44,9 +28,9 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/agregar", authMiddleware, async (req, res) => {
+router.post("/agregar", async (req, res) => {
   try {
-    const { productoId, cantidad = 1 } = req.body;
+    const { usuarioId, productoId, cantidad = 1 } = req.body;
 
     // Verificar que el producto existe
     const producto = await Producto.findById(productoId);
@@ -61,13 +45,13 @@ router.post("/agregar", authMiddleware, async (req, res) => {
 
     // Buscar carrito activo o crear uno nuevo
     let carrito = await Carrito.findOne({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       status: 'Activo'
     });
 
     if (!carrito) {
       carrito = new Carrito({
-        usuario: req.usuario.id,
+        usuario: usuarioId,
         productos: []
       });
     }
@@ -102,17 +86,16 @@ router.post("/agregar", authMiddleware, async (req, res) => {
   }
 });
 
-router.put("/actualizar/:productoId", authMiddleware, async (req, res) => {
+router.put("/actualizar", async (req, res) => {
   try {
-    const { productoId } = req.params;
-    const { cantidad } = req.body;
+    const { usuarioId, productoId, cantidad } = req.body;
 
     if (cantidad < 1) {
       return res.status(400).json({ error: "La cantidad debe ser mayor a 0" });
     }
 
     const carrito = await Carrito.findOne({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       status: 'Activo'
     });
 
@@ -148,12 +131,12 @@ router.put("/actualizar/:productoId", authMiddleware, async (req, res) => {
   }
 });
 
-router.delete("/eliminar/:productoId", authMiddleware, async (req, res) => {
+router.delete("/eliminar", async (req, res) => {
   try {
-    const { productoId } = req.params;
+    const { usuarioId, productoId } = req.body;
 
     const carrito = await Carrito.findOne({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       status: 'Activo'
     });
 
@@ -177,10 +160,12 @@ router.delete("/eliminar/:productoId", authMiddleware, async (req, res) => {
   }
 });
 
-router.delete("/vaciar", authMiddleware, async (req, res) => {
+router.delete("/vaciar", async (req, res) => {
   try {
+    const { usuarioId } = req.body;
+
     const carrito = await Carrito.findOne({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       status: 'Activo'
     });
 
@@ -200,10 +185,12 @@ router.delete("/vaciar", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/total", authMiddleware, async (req, res) => {
+router.get("/total/:usuarioId", async (req, res) => {
   try {
+    const { usuarioId } = req.params;
+
     const carrito = await Carrito.findOne({
-      usuario: req.usuario.id,
+      usuario: usuarioId,
       status: 'Activo'
     }).populate('productos.producto');
 

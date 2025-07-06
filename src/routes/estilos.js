@@ -2,24 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Estilo = require("../models/estilo");
 const Usuario = require("../models/usuario");
-const jwt = require("jsonwebtoken");
-
-// Middleware de autenticación
-const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (!token) {
-    return res.status(401).json({ error: "No hay token, acceso denegado" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
-    req.usuario = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: "Token inválido" });
-  }
-};
 
 // Obtener todos los estilos disponibles
 router.get("/", async (req, res) => {
@@ -47,9 +29,11 @@ router.get("/categoria/:categoria", async (req, res) => {
 });
 
 // Obtener preferencias del usuario
-router.get("/preferencias", authMiddleware, async (req, res) => {
+router.get("/preferencias/:usuarioId", async (req, res) => {
   try {
-    const usuario = await Usuario.findById(req.usuario.id);
+    const { usuarioId } = req.params;
+
+    const usuario = await Usuario.findById(usuarioId);
     if (!usuario) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
@@ -69,8 +53,9 @@ router.get("/preferencias", authMiddleware, async (req, res) => {
 });
 
 // Actualizar preferencias del usuario
-router.put("/preferencias", authMiddleware, async (req, res) => {
+router.put("/preferencias/:usuarioId", async (req, res) => {
   try {
+    const { usuarioId } = req.params;
     const { estilos } = req.body;
 
     if (!Array.isArray(estilos)) {
@@ -89,7 +74,7 @@ router.put("/preferencias", authMiddleware, async (req, res) => {
 
     // Actualizar usuario
     const usuario = await Usuario.findByIdAndUpdate(
-      req.usuario.id,
+      usuarioId,
       { estilos: estilos },
       { new: true }
     );
