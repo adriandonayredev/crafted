@@ -34,6 +34,16 @@ class ComprasController {
             const comprasConfirmadas = compras.filter(c => c.estado === 'Confirmada').length;
             const totalGastado = compras.reduce((sum, c) => sum + (c.total || 0), 0);
 
+            // Log de diagnóstico
+            console.log({
+                usuario,
+                compras,
+                totalCompras,
+                comprasConfirmadas,
+                totalGastado,
+                error: null
+            });
+
             res.render('mis-compras', { 
                 usuario: usuario,
                 compras: compras,
@@ -53,6 +63,16 @@ class ComprasController {
             } catch (userError) {
                 console.error('Error al obtener usuario:', userError);
             }
+
+            // Log de diagnóstico en error
+            console.log({
+                usuario,
+                compras: [],
+                totalCompras: 0,
+                comprasConfirmadas: 0,
+                totalGastado: 0,
+                error: 'Error al cargar el historial de compras. Por favor, intenta de nuevo.'
+            });
 
             res.render('mis-compras', { 
                 usuario: usuario,

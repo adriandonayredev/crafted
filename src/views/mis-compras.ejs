@@ -121,9 +121,9 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center active" href="#" role="button" data-bs-toggle="dropdown">
                             <div class="user-avatar me-2">
-                                <%= usuario ? usuario.nombre.charAt(0).toUpperCase() : '' %>
+                                <%= usuario && usuario.nombre ? usuario.nombre.charAt(0).toUpperCase() : '' %>
                             </div>
-                            <%= usuario ? usuario.nombre : '' %>
+                            <%= usuario && usuario.nombre ? usuario.nombre : '' %>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/perfil">
