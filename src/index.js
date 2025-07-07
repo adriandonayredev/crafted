@@ -85,6 +85,11 @@ app.get("/api", (req, res) => {
   });
 });
 
+// Ruta raíz para diagnóstico
+app.get('/', (req, res) => {
+  res.send('Servidor Express de Crafted corriendo correctamente.');
+});
+
 // Middleware para manejar rutas no encontradas
 app.use((req, res) => {
   res.status(404).json({
@@ -93,13 +98,10 @@ app.use((req, res) => {
   });
 });
 
-// Middleware para manejar errores
+// Manejador global de errores
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    error: "Error interno del servidor",
-    message: err.message
-  });
+  console.error('Error no capturado:', err);
+  res.status(500).send('Error interno del servidor.');
 });
 
 app.listen(5001, () => console.log("Servidor iniciado en el puerto 5001"));
