@@ -13,7 +13,7 @@ const Like = require('./src/models/like');
 const productos = [
   { _id: "1", nombre: "Set de pinceles Artisan Pro", descripcion: "Juego de 12 pinceles premium para técnicas mixtas", precio: 15.50, stock: 100, imagen_url: "assets/img/productos/pinceles-artisan.jpg", experiencia: "principiante" },
   { _id: "2", nombre: "Bloque de arcilla natural", descripcion: "Arcilla blanca premium para modelado y escultura", precio: 8.99, stock: 200, imagen_url: "assets/img/productos/arcilla-natural.jpg", experiencia: "avanzado" },
-  { _id: "3", nombre: "Acuarelas Van Gogh set básico", descripcion: "Set de 12 colores de acuarela de alta pigmentación", precio: 168.50, stock: 33, imagen_url: "assets/img/productos/acurelas-vg.jpg", experiencia: "principiante" },
+  { _id: "3", nombre: "Acuarelas Van Gogh set básico", descripcion: "Set de 12 colores de acuarela de alta pigmentación", precio: 168.50, stock: 33, imagen_url: "assets/img/productos/acuarelas-vg.jpg", experiencia: "principiante" },
   { _id: "4", nombre: "Kit de fotografía para principiantes", descripcion: "Incluye trípode, filtros y manual básico", precio: 160.52, stock: 45, imagen_url: "assets/img/productos/kit-fotografia.jpg", experiencia: "avanzado" },
   { _id: "5", nombre: "Lienzo premium pre-estirado", descripcion: "Lienzo 100% algodón de 40x50cm para pinturas acrílicas", precio: 61.41, stock: 12, imagen_url: "assets/img/productos/lienzo-premium.jpg", experiencia: "intermedio" },
   { _id: "6", nombre: "Set completo de óleos Rembrandt", descripcion: "Caja con 24 colores de óleo profesional", precio: 199.04, stock: 14, imagen_url: "assets/img/productos/oleos-rembrandt.jpg", experiencia: "intermedio" },

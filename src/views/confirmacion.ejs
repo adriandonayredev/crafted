@@ -87,7 +87,7 @@
                         </p>
 
                         <div class="tracking-number mb-4">
-                            <i class="bi bi-truck"></i> Número de Seguimiento: #<%= compra._id.toString().slice(-8).toUpperCase() %>
+                            <i class="bi bi-truck"></i> Número de Orden: <%= compra.numeroOrden %>
                         </div>
 
                         <div class="order-details text-start mb-4">
@@ -96,7 +96,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <strong>Fecha de Compra:</strong><br>
-                                    <%= new Date(compra.fecha_compra).toLocaleDateString('es-ES', { 
+                                    <%= new Date(compra.fecha).toLocaleDateString('es-ES', { 
                                         year: 'numeric', 
                                         month: 'long', 
                                         day: 'numeric',
@@ -106,9 +106,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <strong>Método de Pago:</strong><br>
-                                    <% if (compra.metodo_pago === 'tarjeta') { %>
+                                    <% if (compra.metodoPago === 'Tarjeta') { %>
                                         <i class="bi bi-credit-card"></i> Tarjeta de Crédito/Débito
-                                    <% } else if (compra.metodo_pago === 'paypal') { %>
+                                    <% } else if (compra.metodoPago === 'PayPal') { %>
                                         <i class="bi bi-paypal"></i> PayPal
                                     <% } else { %>
                                         <i class="bi bi-bank"></i> Transferencia Bancaria
@@ -117,8 +117,13 @@
                             </div>
 
                             <div class="mb-3">
-                                <strong>Dirección de Envío:</strong><br>
-                                <%= compra.direccion_envio %>
+                                <strong>Productos Comprados:</strong><br>
+                                <% compra.productos.forEach(item => { %>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span><%= item.producto.nombre %> (x<%= item.cantidad %>)</span>
+                                        <span>$<%= (item.precioUnitario * item.cantidad).toFixed(2) %></span>
+                                    </div>
+                                <% }) %>
                             </div>
 
                             <div class="mb-3">
@@ -128,7 +133,7 @@
 
                             <div class="mb-3">
                                 <strong>Estado:</strong><br>
-                                <span class="badge bg-success">Completada</span>
+                                <span class="badge bg-success"><%= compra.estado %></span>
                             </div>
                         </div>
 

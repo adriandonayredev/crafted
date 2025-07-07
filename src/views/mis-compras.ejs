@@ -121,9 +121,9 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center active" href="#" role="button" data-bs-toggle="dropdown">
                             <div class="user-avatar me-2">
-                                <%= usuario.nombre.charAt(0).toUpperCase() %>
+                                <%= usuario ? usuario.nombre.charAt(0).toUpperCase() : '' %>
                             </div>
-                            <%= usuario.nombre %>
+                            <%= usuario ? usuario.nombre : '' %>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/perfil">
@@ -177,7 +177,7 @@
             <div class="col-md-4">
                 <div class="stats-card">
                     <div class="stat-item">
-                        <div class="stat-number" id="totalCompras">-</div>
+                        <div class="stat-number" id="totalCompras"><%= totalCompras %></div>
                         <div class="stat-label">Total de Compras</div>
                     </div>
                 </div>
@@ -185,7 +185,7 @@
             <div class="col-md-4">
                 <div class="stats-card">
                     <div class="stat-item">
-                        <div class="stat-number" id="comprasConfirmadas">-</div>
+                        <div class="stat-number" id="comprasConfirmadas"><%= comprasConfirmadas %></div>
                         <div class="stat-label">Compras Confirmadas</div>
                     </div>
                 </div>
@@ -193,7 +193,7 @@
             <div class="col-md-4">
                 <div class="stats-card">
                     <div class="stat-item">
-                        <div class="stat-number" id="totalGastado">$0</div>
+                        <div class="stat-number" id="totalGastado">$<%= totalGastado.toFixed(2) %></div>
                         <div class="stat-label">Total Gastado</div>
                     </div>
                 </div>
@@ -298,20 +298,5 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/carrito.js"></script>
-    
-    <!-- Script para cargar estadísticas -->
-    <script>
-        // Cargar estadísticas de compras
-        fetch('/api/estadisticas-compras')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('totalCompras').textContent = data.totalCompras;
-                document.getElementById('comprasConfirmadas').textContent = data.comprasConfirmadas;
-                document.getElementById('totalGastado').textContent = '$' + data.totalGastado.toFixed(2);
-            })
-            .catch(error => {
-                console.error('Error al cargar estadísticas:', error);
-            });
-    </script>
 </body>
 </html> 

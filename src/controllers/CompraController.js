@@ -1,6 +1,5 @@
 const usuarioModel = require("../models/usuario");
 const productoModel = require("../models/producto");
-const ordenModel = require("../models/orden");
 const compraModel = require("../models/compra");
 
 // Mostrar checkout
@@ -39,10 +38,20 @@ module.exports.procesarCompra = async (req, res) => {
     if (!req.session.usuario) return res.redirect("/login");
     
     const { metodoPago, direccionEnvio } = req.body;
+    console.log("Procesando compra para usuario:", req.session.usuario._id);
+    console.log("Datos recibidos:", { metodoPago, direccionEnvio });
+    
     const usuario = await usuarioModel.findById(req.session.usuario._id);
+    if (!usuario) {
+        console.error("Usuario no encontrado");
+        return res.redirect("/login");
+    }
+    
     const carrito = usuario.carrito || { items: [] };
+    console.log("Carrito del usuario:", carrito);
     
     if (carrito.items.length === 0) {
+        console.log("Carrito vacío");
         return res.redirect("/carrito");
     }
 
@@ -63,27 +72,25 @@ module.exports.procesarCompra = async (req, res) => {
             };
         }));
 
-        // Crear orden
-        const orden = new ordenModel({
-            id_usuario: usuario._id,
-            items: carrito.items,
-            total: total,
-            status: "pendiente",
-            fecha_creacion: new Date()
-        });
-        await orden.save();
+        console.log("Total calculado:", total);
+        console.log("Items detallados:", itemsDetallados);
 
-        // Crear compra
+        // Crear compra usando el modelo correcto
         const compra = new compraModel({
-            id_usuario: usuario._id,
-            id_orden: orden._id,
+            usuario: usuario._id.toString(),
+            productos: itemsDetallados.map(item => ({
+                producto: item.producto._id.toString(),
+                cantidad: item.cantidad,
+                precioUnitario: item.producto.precio
+            })),
             total: total,
-            metodo_pago: metodoPago,
-            direccion_envio: direccionEnvio,
-            status: "completada",
-            fecha_compra: new Date()
+            metodoPago: metodoPago,
+            estado: 'Confirmada'
         });
+        
+        console.log("Compra a crear:", compra);
         await compra.save();
+        console.log("Compra guardada exitosamente:", compra._id);
 
         // Actualizar stock de productos
         for (const item of itemsDetallados) {
@@ -100,6 +107,7 @@ module.exports.procesarCompra = async (req, res) => {
         // Actualizar sesión
         req.session.carritoCount = 0;
 
+        console.log("Compra procesada exitosamente, redirigiendo a confirmación");
         // Redirigir a confirmación
         res.redirect(`/compra/confirmacion/${compra._id}`);
 
@@ -114,16 +122,15 @@ module.exports.mostrarConfirmacion = async (req, res) => {
     if (!req.session.usuario) return res.redirect("/login");
     
     const { idCompra } = req.params;
-    const compra = await compraModel.findById(idCompra).populate('id_orden');
+    const compra = await compraModel.findById(idCompra).populate('productos.producto');
     
-    if (!compra || compra.id_usuario.toString() !== req.session.usuario._id) {
+    if (!compra || compra.usuario !== req.session.usuario._id.toString()) {
         return res.redirect("/inicio");
     }
 
     res.render("confirmacion", {
         usuario: req.session.usuario,
-        compra,
-        orden: compra.id_orden
+        compra
     });
 };
 
@@ -131,12 +138,13 @@ module.exports.mostrarConfirmacion = async (req, res) => {
 module.exports.mostrarHistorial = async (req, res) => {
     if (!req.session.usuario) return res.redirect("/login");
     
-    const compras = await compraModel.find({ id_usuario: req.session.usuario._id })
-        .populate('id_orden')
-        .sort({ fecha_compra: -1 });
+    const compras = await compraModel.find({ usuario: req.session.usuario._id.toString() })
+        .populate('productos.producto')
+        .sort({ fecha: -1 });
 
-    res.render("historial", {
+    res.render("mis-compras", {
         usuario: req.session.usuario,
-        compras
+        compras,
+        error: null
     });
 }; 
