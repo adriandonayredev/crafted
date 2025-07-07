@@ -15,12 +15,22 @@ module.exports.mostrarSocial = async (req, res) => {
         for (const post of posts) {
             const usuario = await usuarioModel.findById(post.id_usuario);
             const comentarios = await comentarioModel.find({ id_post: post._id });
+            
+            // Obtener información del usuario para cada comentario
+            const comentariosConUsuario = await Promise.all(comentarios.map(async (comentario) => {
+                const usuarioComentario = await usuarioModel.findById(comentario.id_usuario);
+                return {
+                    ...comentario.toObject(),
+                    nombreUsuario: usuarioComentario ? usuarioComentario.nombre : 'Usuario'
+                };
+            }));
+            
             const likes = await likeModel.find({ id_post: post._id });
             const yaDioLike = likes.some(l => l.id_usuario === req.session.usuario._id);
             postsConInfo.push({
                 ...post.toObject(),
                 usuario: usuario ? usuario.nombre : 'Usuario',
-                comentarios,
+                comentarios: comentariosConUsuario,
                 numLikes: likes.length,
                 yaDioLike,
                 fechaFormateada: post.fecha.toLocaleDateString('es-ES', {

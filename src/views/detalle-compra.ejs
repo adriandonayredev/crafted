@@ -112,7 +112,7 @@
                     <li class="nav-item me-3">
                         <a class="nav-link position-relative" href="/carrito">
                             <i class="bi bi-cart3"></i> Carrito
-                            <span class="cart-badge">0</span>
+                            <span class="cart-badge"><%= usuario.carrito && usuario.carrito.items ? usuario.carrito.items.reduce((acc, i) => acc + i.cantidad, 0) : 0 %></span>
                         </a>
                     </li>
                     <li class="nav-item dropdown">

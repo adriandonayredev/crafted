@@ -4,7 +4,7 @@ const ComprasController = require('../controllers/ComprasController');
 
 // Middleware para verificar autenticación
 const requireAuth = (req, res, next) => {
-    if (!req.session.usuarioId) {
+    if (!req.session.usuario) {
         return res.redirect('/login');
     }
     next();

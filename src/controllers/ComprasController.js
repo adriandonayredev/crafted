@@ -6,12 +6,12 @@ class ComprasController {
     async mostrarMisCompras(req, res) {
         try {
             // Verificar si el usuario está autenticado
-            if (!req.session.usuarioId) {
+            if (!req.session.usuario) {
                 return res.redirect('/login');
             }
 
             // Buscar el usuario
-            const usuario = await Usuario.findById(req.session.usuarioId);
+            const usuario = await Usuario.findById(req.session.usuario._id);
             if (!usuario) {
                 // Si no existe el usuario, limpiar la sesión y redirigir
                 req.session.destroy();
@@ -21,7 +21,7 @@ class ComprasController {
             // Obtener todas las compras del usuario con información de productos
             let compras = [];
             try {
-                compras = await Compra.find({ usuario: req.session.usuarioId })
+                compras = await Compra.find({ usuario: req.session.usuario._id.toString() })
                     .populate('productos.producto')
                     .sort({ fecha: -1 }); // Más recientes primero
             } catch (dbError) {
@@ -57,8 +57,8 @@ class ComprasController {
             // Intentar obtener el usuario para mostrar la página con error
             let usuario = null;
             try {
-                if (req.session.usuarioId) {
-                    usuario = await Usuario.findById(req.session.usuarioId);
+                if (req.session.usuario) {
+                    usuario = await Usuario.findById(req.session.usuario._id);
                 }
             } catch (userError) {
                 console.error('Error al obtener usuario:', userError);
@@ -87,36 +87,45 @@ class ComprasController {
 
     // Mostrar detalles de una compra específica
     async mostrarDetalleCompra(req, res) {
+        console.log('🔍 Accediendo a mostrarDetalleCompra');
+        console.log('📋 Session usuario:', req.session.usuario);
+        console.log('🆔 Compra ID:', req.params.compraId);
+        
         try {
             const { compraId } = req.params;
             
             // Verificar si el usuario está autenticado
-            if (!req.session.usuarioId) {
+            if (!req.session.usuario) {
+                console.log('❌ No hay usuario en sesión, redirigiendo a login');
                 return res.redirect('/login');
             }
 
-            const usuario = await Usuario.findById(req.session.usuarioId);
+            const usuario = await Usuario.findById(req.session.usuario._id);
             if (!usuario) {
+                console.log('❌ Usuario no encontrado en BD, redirigiendo a login');
                 req.session.destroy();
                 return res.redirect('/login');
             }
 
+            console.log('🔍 Buscando compra con ID:', compraId);
             const compra = await Compra.findOne({ 
                 _id: compraId, 
-                usuario: req.session.usuarioId 
+                usuario: req.session.usuario._id.toString() 
             }).populate('productos.producto');
 
             if (!compra) {
+                console.log('❌ Compra no encontrada, redirigiendo a mis-compras');
                 return res.redirect('/mis-compras');
             }
 
+            console.log('✅ Compra encontrada, renderizando detalle-compra');
             res.render('detalle-compra', { 
                 usuario: usuario,
                 compra: compra,
                 error: null
             });
         } catch (error) {
-            console.error('Error al mostrar detalle de compra:', error);
+            console.error('❌ Error al mostrar detalle de compra:', error);
             res.redirect('/mis-compras');
         }
     }
@@ -124,17 +133,17 @@ class ComprasController {
     // Obtener estadísticas de compras (para dashboard)
     async obtenerEstadisticas(req, res) {
         try {
-            if (!req.session.usuarioId) {
+            if (!req.session.usuario) {
                 return res.status(401).json({ error: 'No autorizado' });
             }
 
-            const usuario = await Usuario.findById(req.session.usuarioId);
+            const usuario = await Usuario.findById(req.session.usuario._id);
             if (!usuario) {
                 return res.status(401).json({ error: 'Usuario no encontrado' });
             }
 
             // Asegurarse de comparar como string
-            const usuarioId = req.session.usuarioId.toString();
+            const usuarioId = req.session.usuario._id.toString();
 
             let totalCompras = 0;
             let comprasConfirmadas = 0;

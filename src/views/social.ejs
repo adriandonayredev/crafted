@@ -136,7 +136,7 @@
                     <div class="comment-list mb-2">
                         <% post.comentarios.forEach(com => { %>
                             <div class="mb-1">
-                                <span class="fw-bold"><%= com.id_usuario %>:</span> <%= com.texto %>
+                                <span class="fw-bold"><%= com.nombreUsuario %>:</span> <%= com.texto %>
                                 <small class="text-muted ms-2"><%= new Date(com.fecha).toLocaleDateString('es-ES', { hour: '2-digit', minute: '2-digit' }) %></small>
                             </div>
                         <% }) %>
