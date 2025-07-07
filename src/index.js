@@ -57,13 +57,13 @@ app.use("/api/posts", postsRoutes);
 app.use("/api/comentarios", comentariosRoutes);
 
 // Usar las rutas de la capa de presentación
-app.use("/", authViewRoutes);
 app.use("/admin", productosViewRoutes); // Ruta para administración de productos
 app.use(carritoViewRoutes);
 app.use(comprasViewRoutes);
 app.use(socialViewRoutes);
-app.use(perfilRoutes);
+app.use("/perfil", perfilRoutes);
 app.use(misComprasRoutes);
+app.use("/", authViewRoutes); // Esta debe ir al final para capturar rutas no específicas
 
 // Ruta de bienvenida para la API
 app.get("/api", (req, res) => {
@@ -85,7 +85,7 @@ app.get("/api", (req, res) => {
   });
 });
 
-// Ruta raíz para diagnóstico
+// Ruta raíz para diagnóstico (solo si no hay otras rutas que coincidan)
 app.get('/', (req, res) => {
   res.send('Servidor Express de Crafted corriendo correctamente.');
 });
@@ -104,4 +104,5 @@ app.use((err, req, res, next) => {
   res.status(500).send('Error interno del servidor.');
 });
 
-app.listen(3001, () => console.log("Servidor iniciado en el puerto 3001"));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log("Servidor iniciado en el puerto", PORT));

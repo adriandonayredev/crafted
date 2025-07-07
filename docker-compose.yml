@@ -4,11 +4,18 @@ services:
     restart: always
     build: .
     ports:
-      - "5001:3000"
+      - "5001:3001"
     depends_on:
       - crafted_db
     volumes:
       - .:/usr/src/app
+    environment:
+      - MONGO_URL=mongodb://crafted_db:27017/crafted_db
+      - DOCKER_ENV=true
+      - NODE_ENV=production
+      - PORT=3001
+    networks:
+      - crafted_network
   crafted_db:
     container_name: crafted_db
     image: mongo
@@ -16,6 +23,12 @@ services:
       - "27017:27017"
     volumes:
       - crafted_mongo_data:/data/db
+    networks:
+      - crafted_network
 
 volumes:
   crafted_mongo_data:
+
+networks:
+  crafted_network:
+    driver: bridge

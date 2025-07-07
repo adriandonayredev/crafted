@@ -95,7 +95,7 @@
                     <li class="nav-item me-3">
                         <a class="nav-link position-relative" href="/carrito">
                             <i class="bi bi-cart3"></i> Carrito
-                            <span class="cart-badge">0</span>
+                            <span class="cart-badge"><%= usuario.carrito && usuario.carrito.items ? usuario.carrito.items.reduce((acc, i) => acc + i.cantidad, 0) : 0 %></span>
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -200,42 +200,42 @@
                                 <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="hobbies" value="Fotografía" 
-                                               <%= usuario.hobbies.some(h => h.nombre === 'Fotografía') ? 'checked' : '' %>>
+                                               <%= usuario.hobbies && usuario.hobbies.some(h => h.nombre === 'Fotografía') ? 'checked' : '' %>>
                                         <label class="form-check-label">Fotografía</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="hobbies" value="Pintura" 
-                                               <%= usuario.hobbies.some(h => h.nombre === 'Pintura') ? 'checked' : '' %>>
+                                               <%= usuario.hobbies && usuario.hobbies.some(h => h.nombre === 'Pintura') ? 'checked' : '' %>>
                                         <label class="form-check-label">Pintura</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="hobbies" value="Escultura" 
-                                               <%= usuario.hobbies.some(h => h.nombre === 'Escultura') ? 'checked' : '' %>>
+                                               <%= usuario.hobbies && usuario.hobbies.some(h => h.nombre === 'Escultura') ? 'checked' : '' %>>
                                         <label class="form-check-label">Escultura</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="hobbies" value="Música" 
-                                               <%= usuario.hobbies.some(h => h.nombre === 'Música') ? 'checked' : '' %>>
+                                               <%= usuario.hobbies && usuario.hobbies.some(h => h.nombre === 'Música') ? 'checked' : '' %>>
                                         <label class="form-check-label">Música</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="hobbies" value="Artesanía" 
-                                               <%= usuario.hobbies.some(h => h.nombre === 'Artesanía') ? 'checked' : '' %>>
+                                               <%= usuario.hobbies && usuario.hobbies.some(h => h.nombre === 'Artesanía') ? 'checked' : '' %>>
                                         <label class="form-check-label">Artesanía</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="hobbies" value="Dibujo" 
-                                               <%= usuario.hobbies.some(h => h.nombre === 'Dibujo') ? 'checked' : '' %>>
+                                               <%= usuario.hobbies && usuario.hobbies.some(h => h.nombre === 'Dibujo') ? 'checked' : '' %>>
                                         <label class="form-check-label">Dibujo</label>
                                     </div>
                                 </div>

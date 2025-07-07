@@ -4,19 +4,32 @@ const bcrypt = require('bcrypt');
 class PerfilController {
     // Mostrar página del perfil
     async mostrarPerfil(req, res) {
+        console.log('🔍 Accediendo a mostrarPerfil');
+        console.log('📋 Session usuario:', req.session.usuario);
+        console.log('🌐 URL:', req.url);
+        console.log('📝 Method:', req.method);
+        
         try {
-            const usuario = await Usuario.findById(req.session.usuarioId);
-            if (!usuario) {
+            if (!req.session.usuario) {
+                console.log('❌ No hay usuario en sesión, redirigiendo a login');
                 return res.redirect('/login');
             }
             
+            console.log('🔍 Buscando usuario con ID:', req.session.usuario._id);
+            const usuario = await Usuario.findById(req.session.usuario._id);
+            if (!usuario) {
+                console.log('❌ Usuario no encontrado en BD, redirigiendo a login');
+                return res.redirect('/login');
+            }
+            
+            console.log('✅ Usuario encontrado, renderizando perfil');
             res.render('perfil', { 
                 usuario: usuario,
                 error: null,
                 success: null
             });
         } catch (error) {
-            console.error('Error al mostrar perfil:', error);
+            console.error('❌ Error al mostrar perfil:', error);
             res.render('perfil', { 
                 usuario: null,
                 error: 'Error al cargar el perfil',
@@ -28,9 +41,13 @@ class PerfilController {
     // Actualizar perfil
     async actualizarPerfil(req, res) {
         try {
+            if (!req.session.usuario) {
+                return res.redirect('/login');
+            }
+            
             const { nombre, apellido, email, experiencia, hobbies } = req.body;
             
-            const usuario = await Usuario.findById(req.session.usuarioId);
+            const usuario = await Usuario.findById(req.session.usuario._id);
             if (!usuario) {
                 return res.redirect('/login');
             }
@@ -58,7 +75,7 @@ class PerfilController {
             });
         } catch (error) {
             console.error('Error al actualizar perfil:', error);
-            const usuario = await Usuario.findById(req.session.usuarioId);
+            const usuario = await Usuario.findById(req.session.usuario._id);
             res.render('perfil', { 
                 usuario: usuario,
                 error: 'Error al actualizar el perfil',
@@ -70,9 +87,13 @@ class PerfilController {
     // Cambiar contraseña
     async cambiarPassword(req, res) {
         try {
+            if (!req.session.usuario) {
+                return res.redirect('/login');
+            }
+            
             const { passwordActual, passwordNuevo, passwordConfirmar } = req.body;
             
-            const usuario = await Usuario.findById(req.session.usuarioId);
+            const usuario = await Usuario.findById(req.session.usuario._id);
             if (!usuario) {
                 return res.redirect('/login');
             }
@@ -110,7 +131,7 @@ class PerfilController {
             });
         } catch (error) {
             console.error('Error al cambiar contraseña:', error);
-            const usuario = await Usuario.findById(req.session.usuarioId);
+            const usuario = await Usuario.findById(req.session.usuario._id);
             res.render('perfil', { 
                 usuario: usuario,
                 error: 'Error al cambiar la contraseña',

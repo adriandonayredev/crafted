@@ -138,13 +138,35 @@ module.exports.mostrarConfirmacion = async (req, res) => {
 module.exports.mostrarHistorial = async (req, res) => {
     if (!req.session.usuario) return res.redirect("/login");
     
-    const compras = await compraModel.find({ usuario: req.session.usuario._id.toString() })
-        .populate('productos.producto')
-        .sort({ fecha: -1 });
+    try {
+        const compras = await compraModel.find({ usuario: req.session.usuario._id.toString() })
+            .populate('productos.producto')
+            .sort({ fecha: -1 });
 
-    res.render("mis-compras", {
-        usuario: req.session.usuario,
-        compras,
-        error: null
-    });
+        // Calcular estadísticas
+        const totalCompras = compras.length;
+        const comprasConfirmadas = compras.filter(compra => compra.estado === 'Confirmada').length;
+        const totalGastado = compras.reduce((sum, compra) => sum + (compra.total || 0), 0);
+
+        console.log('Estadísticas calculadas:', { totalCompras, comprasConfirmadas, totalGastado });
+
+        res.render("mis-compras", {
+            usuario: req.session.usuario,
+            compras,
+            totalCompras,
+            comprasConfirmadas,
+            totalGastado,
+            error: null
+        });
+    } catch (error) {
+        console.error('Error en mostrarHistorial:', error);
+        res.render("mis-compras", {
+            usuario: req.session.usuario,
+            compras: [],
+            totalCompras: 0,
+            comprasConfirmadas: 0,
+            totalGastado: 0,
+            error: error.message
+        });
+    }
 }; 

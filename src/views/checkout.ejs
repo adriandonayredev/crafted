@@ -96,20 +96,20 @@
                             <!-- Método de Pago -->
                             <div class="mb-4">
                                 <label class="form-label fw-bold">Método de Pago</label>
-                                <div class="payment-method" onclick="selectPayment('tarjeta')">
-                                    <input type="radio" name="metodoPago" value="tarjeta" id="tarjeta" class="me-2" required>
+                                <div class="payment-method" onclick="selectPayment('Tarjeta')">
+                                    <input type="radio" name="metodoPago" value="Tarjeta" id="tarjeta" class="me-2" required>
                                     <label for="tarjeta" class="mb-0">
                                         <i class="bi bi-credit-card text-primary"></i> Tarjeta de Crédito/Débito
                                     </label>
                                 </div>
-                                <div class="payment-method" onclick="selectPayment('paypal')">
-                                    <input type="radio" name="metodoPago" value="paypal" id="paypal" class="me-2">
+                                <div class="payment-method" onclick="selectPayment('PayPal')">
+                                    <input type="radio" name="metodoPago" value="PayPal" id="paypal" class="me-2">
                                     <label for="paypal" class="mb-0">
                                         <i class="bi bi-paypal text-primary"></i> PayPal
                                     </label>
                                 </div>
-                                <div class="payment-method" onclick="selectPayment('transferencia')">
-                                    <input type="radio" name="metodoPago" value="transferencia" id="transferencia" class="me-2">
+                                <div class="payment-method" onclick="selectPayment('Transferencia')">
+                                    <input type="radio" name="metodoPago" value="Transferencia" id="transferencia" class="me-2">
                                     <label for="transferencia" class="mb-0">
                                         <i class="bi bi-bank text-primary"></i> Transferencia Bancaria
                                     </label>
@@ -217,9 +217,18 @@
                 el.classList.remove('selected');
             });
             
-            // Seleccionar método
-            document.getElementById(method).checked = true;
-            document.getElementById(method).closest('.payment-method').classList.add('selected');
+            // Mapear método a ID del input
+            const methodToId = {
+                'Tarjeta': 'tarjeta',
+                'PayPal': 'paypal',
+                'Transferencia': 'transferencia'
+            };
+            
+            const inputId = methodToId[method];
+            if (inputId) {
+                document.getElementById(inputId).checked = true;
+                document.getElementById(inputId).closest('.payment-method').classList.add('selected');
+            }
         }
     </script>
 </body>
