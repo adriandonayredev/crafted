@@ -3,6 +3,7 @@ const router = express.Router();
 const Compra = require("../models/compra");
 const Carrito = require("../models/carrito");
 const Producto = require("../models/producto");
+const ComprasController = require('../controllers/ComprasController');
 
 // Procesar compra desde el carrito
 router.post("/procesar", async (req, res) => {
@@ -187,5 +188,18 @@ router.get("/estadisticas/:usuarioId", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Middleware para verificar autenticación
+const requireAuth = (req, res, next) => {
+    if (!req.session.usuarioId) {
+        return res.redirect('/login');
+    }
+    next();
+};
+
+// Rutas de compras
+router.get('/mis-compras', requireAuth, ComprasController.mostrarMisCompras);
+router.get('/mis-compras/:compraId', requireAuth, ComprasController.mostrarDetalleCompra);
+router.get('/api/estadisticas-compras', requireAuth, ComprasController.obtenerEstadisticas);
 
 module.exports = router;

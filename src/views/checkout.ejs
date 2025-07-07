@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Crafted</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .checkout-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .payment-method {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .payment-method:hover {
+            border-color: var(--color-primary);
+            background-color: #f8f9fa;
+        }
+        .payment-method.selected {
+            border-color: var(--color-primary);
+            background-color: #e3f2fd;
+        }
+        .product-summary {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/inicio">
+                <i class="bi bi-palette-fill"></i> Crafted
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/inicio"><i class="bi bi-house"></i> Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/productos"><i class="bi bi-grid"></i> Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/social"><i class="bi bi-people"></i> Social</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item me-3">
+                        <a class="nav-link position-relative" href="/carrito">
+                            <i class="bi bi-cart3"></i> Carrito
+                            <span class="cart-badge"><%= items.reduce((acc, i) => acc + i.cantidad, 0) %></span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <div class="user-avatar me-2">
+                                <%= usuario.nombre.charAt(0).toUpperCase() %>
+                            </div>
+                            <%= usuario.nombre %>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/perfil"><i class="bi bi-person"></i> Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="/mis-compras"><i class="bi bi-bag"></i> Mis Compras</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="mb-4 text-center text-primary fw-bold"><i class="bi bi-credit-card"></i> Finalizar Compra</h1>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <div class="row">
+            <!-- Formulario de Checkout -->
+            <div class="col-lg-8">
+                <div class="card checkout-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4"><i class="bi bi-credit-card"></i> Información de Pago</h5>
+                        
+                        <form action="/checkout/procesar" method="POST">
+                            <!-- Método de Pago -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Método de Pago</label>
+                                <div class="payment-method" onclick="selectPayment('tarjeta')">
+                                    <input type="radio" name="metodoPago" value="tarjeta" id="tarjeta" class="me-2" required>
+                                    <label for="tarjeta" class="mb-0">
+                                        <i class="bi bi-credit-card text-primary"></i> Tarjeta de Crédito/Débito
+                                    </label>
+                                </div>
+                                <div class="payment-method" onclick="selectPayment('paypal')">
+                                    <input type="radio" name="metodoPago" value="paypal" id="paypal" class="me-2">
+                                    <label for="paypal" class="mb-0">
+                                        <i class="bi bi-paypal text-primary"></i> PayPal
+                                    </label>
+                                </div>
+                                <div class="payment-method" onclick="selectPayment('transferencia')">
+                                    <input type="radio" name="metodoPago" value="transferencia" id="transferencia" class="me-2">
+                                    <label for="transferencia" class="mb-0">
+                                        <i class="bi bi-bank text-primary"></i> Transferencia Bancaria
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Dirección de Envío -->
+                            <div class="mb-4">
+                                <label for="direccionEnvio" class="form-label fw-bold">Dirección de Envío</label>
+                                <textarea class="form-control" id="direccionEnvio" name="direccionEnvio" rows="3" 
+                                    placeholder="Ingresa tu dirección completa de envío" required></textarea>
+                            </div>
+
+                            <!-- Información Adicional -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telefono" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="telefono" name="telefono" 
+                                        placeholder="+1 234 567 8900">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                        value="<%= usuario.email %>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="bi bi-check-circle"></i> Confirmar Compra - $<%= total.toFixed(2) %>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen de Productos -->
+            <div class="col-lg-4">
+                <div class="card checkout-card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4"><i class="bi bi-cart-check"></i> Resumen de Compra</h5>
+                        
+                        <div class="product-summary mb-3">
+                            <% items.forEach(item => { %>
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="<%= item.imagen_url %>" alt="<%= item.nombre %>" 
+                                        class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;"
+                                        onerror="this.src='https://via.placeholder.com/50x50?text=Sin+Imagen'">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0"><%= item.nombre %></h6>
+                                        <small class="text-muted">Cantidad: <%= item.cantidad %></small>
+                                    </div>
+                                    <div class="text-end">
+                                        <strong>$<%= item.subtotal.toFixed(2) %></strong>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>$<%= total.toFixed(2) %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Envío:</span>
+                            <span class="text-success">Gratis</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Impuestos:</span>
+                            <span>$0.00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total:</span>
+                            <span class="text-primary">$<%= total.toFixed(2) %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light text-muted py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-palette-fill"></i> Crafted</h5>
+                    <p class="text-muted">Tu plataforma de hobbies creativos</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted">&copy; 2024 Crafted. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/carrito.js"></script>
+    <script>
+        function selectPayment(method) {
+            // Remover selección previa
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Seleccionar método
+            document.getElementById(method).checked = true;
+            document.getElementById(method).closest('.payment-method').classList.add('selected');
+        }
+    </script>
+</body>
+</html> 

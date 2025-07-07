@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito - Crafted</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .carrito-table th, .carrito-table td {
+            vertical-align: middle;
+        }
+        .carrito-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .btn-update, .btn-delete {
+            border-radius: 8px;
+        }
+        .btn-update {
+            background: var(--color-primary);
+            color: #fff;
+        }
+        .btn-update:hover {
+            background: var(--color-secondary);
+        }
+        .btn-delete {
+            background: var(--color-danger);
+            color: #fff;
+        }
+        .btn-delete:hover {
+            background: #b91c1c;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/inicio">
+                <i class="bi bi-palette-fill"></i> Crafted
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/inicio"><i class="bi bi-house"></i> Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/productos"><i class="bi bi-grid"></i> Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/social"><i class="bi bi-people"></i> Social</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item me-3">
+                        <a class="nav-link position-relative active" href="/carrito">
+                            <i class="bi bi-cart3"></i> Carrito
+                            <span class="cart-badge"><%= items.reduce((acc, i) => acc + i.cantidad, 0) %></span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <div class="user-avatar me-2">
+                                <%= usuario.nombre.charAt(0).toUpperCase() %>
+                            </div>
+                            <%= usuario.nombre %>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/perfil"><i class="bi bi-person"></i> Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="/mis-compras"><i class="bi bi-bag"></i> Mis Compras</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="mb-4 text-center text-primary fw-bold"><i class="bi bi-cart3"></i> Mi Carrito</h1>
+        <% if (items.length === 0) { %>
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> Tu carrito está vacío. <a href="/productos">Explora productos</a>.
+            </div>
+        <% } else { %>
+            <div class="table-responsive">
+                <table class="table carrito-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% items.forEach(item => { %>
+                            <tr>
+                                <td><img src="<%= item.imagen_url %>" class="carrito-img" alt="<%= item.nombre %>" onerror="this.src='https://via.placeholder.com/70x70?text=Sin+Imagen'"/></td>
+                                <td><%= item.nombre %></td>
+                                <td>$<%= item.precio.toFixed(2) %></td>
+                                <td>
+                                    <form action="/carrito/actualizar" method="POST" class="d-flex align-items-center">
+                                        <input type="hidden" name="id_producto" value="<%= item._id %>">
+                                        <input type="number" name="cantidad" value="<%= item.cantidad %>" min="1" max="<%= item.stock %>" class="form-control form-control-sm me-2" style="width:70px;">
+                                        <button type="submit" class="btn btn-update btn-sm"><i class="bi bi-arrow-repeat"></i></button>
+                                    </form>
+                                </td>
+                                <td>$<%= item.subtotal.toFixed(2) %></td>
+                                <td>
+                                    <form action="/carrito/eliminar" method="POST">
+                                        <input type="hidden" name="id_producto" value="<%= item._id %>">
+                                        <button type="submit" class="btn btn-delete btn-sm"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-end mt-4">
+                <h4>Total: <span class="text-primary fw-bold">$<%= total.toFixed(2) %></span></h4>
+                <a href="/checkout" class="btn btn-success btn-lg mt-2">
+                    <i class="bi bi-credit-card"></i> Proceder al Pago
+                </a>
+            </div>
+        <% } %>
+    </div>
+
+    <footer class="bg-light text-muted py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-palette-fill"></i> Crafted</h5>
+                    <p class="text-muted">Tu plataforma de hobbies creativos</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted">&copy; 2024 Crafted. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/carrito.js"></script>
+</body>
+</html> 

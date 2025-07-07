@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crafted - Preferencias</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .preferences-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        .preferences-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+        }
+        .brand-logo {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-preferences {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-preferences:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .hobby-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="preferences-container">
+        <div class="preferences-card">
+            <div class="text-center mb-4">
+                <div class="brand-logo">
+                    <i class="bi bi-palette-fill"></i>
+                </div>
+                <h2 class="text-primary fw-bold">Personaliza tu Experiencia</h2>
+                <p class="text-muted">Ayúdanos a crear tu caja temática perfecta</p>
+            </div>
+
+            <% if (error) { %>
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> <%= error %>
+                </div>
+            <% } %>
+
+            <form action="/preferencias" method="POST">
+                <div class="mb-4">
+                    <label for="hobby_principal" class="form-label fw-bold">¿Qué hobby te interesa más?</label>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card h-100 text-center p-3 hobby-option" onclick="selectHobby('pintura')">
+                                <div class="hobby-icon text-primary">
+                                    <i class="bi bi-palette"></i>
+                                </div>
+                                <h6>Pintura</h6>
+                                <small class="text-muted">Acuarelas, óleos, acrílicos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 text-center p-3 hobby-option" onclick="selectHobby('escultura')">
+                                <div class="hobby-icon text-warning">
+                                    <i class="bi bi-gear"></i>
+                                </div>
+                                <h6>Escultura</h6>
+                                <small class="text-muted">Arcilla, modelado, herramientas</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 text-center p-3 hobby-option" onclick="selectHobby('fotografia')">
+                                <div class="hobby-icon text-info">
+                                    <i class="bi bi-camera"></i>
+                                </div>
+                                <h6>Fotografía</h6>
+                                <small class="text-muted">Cámaras, accesorios, revelado</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 text-center p-3 hobby-option" onclick="selectHobby('musica')">
+                                <div class="hobby-icon text-success">
+                                    <i class="bi bi-music-note"></i>
+                                </div>
+                                <h6>Música</h6>
+                                <small class="text-muted">Instrumentos, accesorios</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 text-center p-3 hobby-option" onclick="selectHobby('dibujo')">
+                                <div class="hobby-icon text-secondary">
+                                    <i class="bi bi-pencil"></i>
+                                </div>
+                                <h6>Dibujo</h6>
+                                <small class="text-muted">Carboncillos, papeles, tabletas</small>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="hobby_principal" name="hobby_principal" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="nivel_experiencia" class="form-label fw-bold">¿Cuál es tu nivel de experiencia?</label>
+                    <select class="form-select" id="nivel_experiencia" name="nivel_experiencia" required>
+                        <option value="">Selecciona tu nivel</option>
+                        <option value="principiante">Principiante - Estoy empezando</option>
+                        <option value="intermedio">Intermedio - Tengo algo de experiencia</option>
+                        <option value="avanzado">Avanzado - Soy experto</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="presupuesto" class="form-label fw-bold">¿Cuál es tu presupuesto mensual?</label>
+                    <select class="form-select" id="presupuesto" name="presupuesto" required>
+                        <option value="">Selecciona tu presupuesto</option>
+                        <option value="bajo">$20 - $50</option>
+                        <option value="medio">$50 - $100</option>
+                        <option value="alto">$100+</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-preferences w-100">
+                    <i class="bi bi-magic"></i> Crear mi Caja Temática
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectHobby(hobby) {
+            // Remover selección previa
+            document.querySelectorAll('.hobby-option').forEach(option => {
+                option.classList.remove('border-primary', 'bg-primary', 'text-white');
+                option.classList.add('border-light');
+            });
+            
+            // Seleccionar nueva opción
+            event.currentTarget.classList.remove('border-light');
+            event.currentTarget.classList.add('border-primary', 'bg-primary', 'text-white');
+            
+            // Actualizar input hidden
+            document.getElementById('hobby_principal').value = hobby;
+        }
+    </script>
+</body>
+</html> 

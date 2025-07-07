@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const compraSchema = new mongoose.Schema({
-  usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
+  usuario: { type: String, ref: 'Usuario', required: true },
   productos: [{
-    producto: { type: mongoose.Schema.Types.ObjectId, ref: 'Producto', required: true },
+    producto: { type: String, ref: 'Producto', required: true },
     cantidad: { type: Number, required: true, min: 1 },
     precioUnitario: { type: Number, required: true }
   }],

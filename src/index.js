@@ -1,13 +1,29 @@
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
 const app = express();
 
 require("./database");
 
+// Configuración de EJS como motor de plantillas
+app.set("view engine", "ejs");
+app.set("views", __dirname + "/views");
+
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname + "/public"));
 
-// Importar las rutas
+// Configuración de sesiones
+app.use(session({
+    secret: 'crafted-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 horas
+}));
+
+// Importar las rutas de la API
 const productosRoutes = require("./routes/productos");
 const authRoutes = require("./routes/auth");
 const cajasRoutes = require("./routes/cajas");
@@ -19,7 +35,16 @@ const ordenesRoutes = require("./routes/ordenes");
 const postsRoutes = require("./routes/posts");
 const comentariosRoutes = require("./routes/comentarios");
 
-// Usar las rutas
+// Importar las rutas de la capa de presentación
+const authViewRoutes = require("./routes/authView");
+const productosViewRoutes = require("./routes/productosView");
+const carritoViewRoutes = require('./routes/carritoView');
+const comprasViewRoutes = require('./routes/comprasView');
+const socialViewRoutes = require('./routes/socialView');
+const perfilRoutes = require('./routes/perfil');
+const misComprasRoutes = require('./routes/misCompras');
+
+// Usar las rutas de la API
 app.use("/api/productos", productosRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/cajas", cajasRoutes);
@@ -31,8 +56,17 @@ app.use("/api/ordenes", ordenesRoutes);
 app.use("/api/posts", postsRoutes);
 app.use("/api/comentarios", comentariosRoutes);
 
-// Ruta de bienvenida
-app.get("/", (req, res) => {
+// Usar las rutas de la capa de presentación
+app.use("/", authViewRoutes);
+app.use("/admin", productosViewRoutes); // Ruta para administración de productos
+app.use(carritoViewRoutes);
+app.use(comprasViewRoutes);
+app.use(socialViewRoutes);
+app.use(perfilRoutes);
+app.use(misComprasRoutes);
+
+// Ruta de bienvenida para la API
+app.get("/api", (req, res) => {
   res.json({
     message: "API Crafted - Sistema de gestión de productos creativos",
     version: "1.0.0",
@@ -68,4 +102,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(3000, () => console.log("Servidor iniciado en el puerto 3000"));
+app.listen(5001, () => console.log("Servidor iniciado en el puerto 5001"));

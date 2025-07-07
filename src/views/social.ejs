@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social - Crafted</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .post-card {
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(79, 70, 229, 0.07);
+            margin-bottom: 2rem;
+        }
+        .post-img {
+            width: 100%;
+            max-height: 350px;
+            object-fit: cover;
+            border-radius: 18px 18px 0 0;
+        }
+        .like-btn.liked {
+            color: #e0245e;
+        }
+        .comment-list {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            background: var(--color-primary);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/inicio">
+                <i class="bi bi-palette-fill"></i> Crafted
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/inicio"><i class="bi bi-house"></i> Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/productos"><i class="bi bi-grid"></i> Productos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/social"><i class="bi bi-people"></i> Social</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item me-3">
+                        <a class="nav-link position-relative" href="/carrito">
+                            <i class="bi bi-cart3"></i> Carrito
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <div class="user-avatar me-2">
+                                <%= usuario.nombre.charAt(0).toUpperCase() %>
+                            </div>
+                            <%= usuario.nombre %>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/perfil"><i class="bi bi-person"></i> Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="/mis-compras"><i class="bi bi-bag"></i> Mis Compras</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="mb-4 text-center text-primary fw-bold"><i class="bi bi-people"></i> Social</h1>
+        <!-- Formulario para nuevo post -->
+        <div class="card mb-5 p-4 shadow-sm">
+            <form action="/social/post" method="POST" enctype="multipart/form-data">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center mb-3 mb-md-0">
+                        <div class="user-avatar mx-auto">
+                            <%= usuario.nombre.charAt(0).toUpperCase() %>
+                        </div>
+                    </div>
+                    <div class="col-md-7 mb-3 mb-md-0">
+                        <textarea name="comentario" class="form-control" rows="2" maxlength="200" placeholder="Comparte una foto de tu compra y tu experiencia..." required></textarea>
+                    </div>
+                    <div class="col-md-2 mb-3 mb-md-0">
+                        <input type="file" name="imagen" accept="image/*" class="form-control" required>
+                    </div>
+                    <div class="col-md-1 text-center">
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-send"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Feed de posts -->
+        <% if (error) { %>
+            <div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <%= error %></div>
+        <% } %>
+        <% if (posts.length === 0) { %>
+            <div class="alert alert-info text-center">Aún no hay publicaciones. ¡Sé el primero en compartir tu experiencia!</div>
+        <% } %>
+        <div id="feed">
+        <% posts.forEach(post => { %>
+            <div class="card post-card">
+                <% if (post.imagen_url) { %>
+                    <img src="<%= post.imagen_url %>" class="post-img" alt="Foto de compra">
+                <% } %>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="user-avatar me-2"><%= post.usuario.charAt(0).toUpperCase() %></div>
+                        <div>
+                            <span class="fw-bold"><%= post.usuario %></span><br>
+                            <small class="text-muted"><%= post.fechaFormateada %></small>
+                        </div>
+                    </div>
+                    <p class="mb-2"><%= post.comentario %></p>
+                    <div class="d-flex align-items-center mb-2">
+                        <button class="btn btn-link like-btn <%= post.yaDioLike ? 'liked' : '' %>" data-id="<%= post._id %>">
+                            <i class="bi bi-heart-fill"></i> <span class="like-count"><%= post.numLikes %></span>
+                        </button>
+                    </div>
+                    <div class="comment-list mb-2">
+                        <% post.comentarios.forEach(com => { %>
+                            <div class="mb-1">
+                                <span class="fw-bold"><%= com.id_usuario %>:</span> <%= com.texto %>
+                                <small class="text-muted ms-2"><%= new Date(com.fecha).toLocaleDateString('es-ES', { hour: '2-digit', minute: '2-digit' }) %></small>
+                            </div>
+                        <% }) %>
+                    </div>
+                    <form action="/social/comentario" method="POST" class="d-flex mt-2">
+                        <input type="hidden" name="id_post" value="<%= post._id %>">
+                        <input type="text" name="texto" class="form-control me-2" placeholder="Escribe un comentario..." maxlength="120" required>
+                        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-chat"></i></button>
+                    </form>
+                </div>
+            </div>
+        <% }) %>
+        </div>
+    </div>
+
+    <footer class="bg-light text-muted py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-palette-fill"></i> Crafted</h5>
+                    <p class="text-muted">Tu plataforma de hobbies creativos</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted">&copy; 2024 Crafted. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/carrito.js"></script>
+    <script>
+        // Like AJAX
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const id = this.dataset.id;
+                const res = await fetch('/social/like', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_post: id })
+                });
+                const data = await res.json();
+                if (data.liked !== undefined) {
+                    this.classList.toggle('liked', data.liked);
+                    const countSpan = this.querySelector('.like-count');
+                    let count = parseInt(countSpan.textContent);
+                    count = data.liked ? count + 1 : count - 1;
+                    countSpan.textContent = count;
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

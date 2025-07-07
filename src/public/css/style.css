@@ -1,0 +1,172 @@
+/* Paleta moderna y clara */
+:root {
+    --color-primary: #4f46e5;
+    --color-secondary: #6366f1;
+    --color-accent: #fbbf24;
+    --color-bg: #f4f6fb;
+    --color-card: #fff;
+    --color-navbar: #fff;
+    --color-text: #22223b;
+    --color-muted: #6c757d;
+    --color-success: #22c55e;
+    --color-danger: #ef4444;
+    --color-info: #0ea5e9;
+    --color-warning: #f59e42;
+}
+
+body {
+    background: var(--color-bg);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--color-text);
+}
+
+.container, .container-fluid {
+    background-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.navbar {
+    background: var(--color-navbar) !important;
+    box-shadow: 0 2px 12px rgba(79, 70, 229, 0.07);
+}
+
+.navbar-brand, .nav-link, .navbar-dark .navbar-nav .nav-link {
+    color: var(--color-primary) !important;
+}
+
+.nav-link.active, .nav-link:focus, .nav-link:hover {
+    color: var(--color-secondary) !important;
+    background: rgba(99, 102, 241, 0.08);
+    border-radius: 8px;
+}
+
+.user-avatar {
+    background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
+    color: #fff;
+}
+
+.cart-badge {
+    background: var(--color-danger);
+    color: #fff;
+}
+
+.btn-guardar, .btn-primary, .btn-preferences, .btn-login, .btn-register {
+    background: var(--color-primary) !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+.btn-guardar:hover, .btn-primary:hover, .btn-preferences:hover, .btn-login:hover, .btn-register:hover {
+    background: var(--color-secondary) !important;
+    color: #fff !important;
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.15);
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--color-card);
+}
+
+.table thead th {
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f5f9;
+    transform: scale(1.01);
+}
+
+.badge {
+    font-size: 0.8em;
+    padding: 0.5em 0.8em;
+}
+
+.badge.bg-success { background: var(--color-success) !important; }
+.badge.bg-danger { background: var(--color-danger) !important; }
+.badge.bg-info { background: var(--color-info) !important; }
+.badge.bg-warning { background: var(--color-warning) !important; color: #fff; }
+
+.img-thumbnail {
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
+}
+
+.card, .caja-tematica, .login-card, .register-card, .preferences-card {
+    background: var(--color-card) !important;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(79, 70, 229, 0.07);
+}
+
+.shadow-lg {
+    box-shadow: 0 8px 32px rgba(79, 70, 229, 0.10) !important;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+    color: var(--color-text);
+    background: #f8fafc;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.15);
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    color: var(--color-danger);
+    background: #ffe4e6;
+}
+
+footer {
+    background: #f8fafc !important;
+    color: var(--color-muted) !important;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.shadow-lg {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container, .container-fluid {
+        margin: 10px 0;
+        padding: 0 5px;
+    }
+    .table-responsive {
+        font-size: 0.95em;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+} 
